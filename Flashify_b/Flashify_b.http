@@ -1,0 +1,6 @@
+@Flashify_b_HostAddress = http://localhost:5131
+
+GET {{Flashify_b_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

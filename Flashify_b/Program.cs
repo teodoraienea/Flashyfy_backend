@@ -36,6 +36,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<FlashCardService>();
 
 var app = builder.Build();
 

@@ -3,6 +3,7 @@ using Flashify_b.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -37,6 +38,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<FlashCardService>();
+
+builder.Services.AddScoped<FlashCardAnswerService>(serviceProvider =>
+{
+    string apiKey = builder.Configuration["OpenAI:ApiKey"];
+
+    if (string.IsNullOrEmpty(apiKey))
+    {
+        throw new InvalidOperationException("OpenAI API key is missing.");
+    }
+
+    return new FlashCardAnswerService(apiKey);
+});
 
 var app = builder.Build();
 

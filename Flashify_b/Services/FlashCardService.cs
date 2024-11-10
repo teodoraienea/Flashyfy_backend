@@ -45,5 +45,25 @@ namespace Flashify_b.Services
                 .Where(fc => fc.UserId == userId && fc.Category == category)
                 .ToListAsync();
         }
+
+        public async Task<FlashCard> GetFlashCardByIdAsync(int flashCardId)
+        {
+            var card = await _context.FlashCards
+                .Include(f => f.User)
+                .FirstOrDefaultAsync(f => f.Id == flashCardId);
+
+            if (card == null)
+                throw new KeyNotFoundException("FlashCard not found");
+            return card;
+        }
+
+        public async Task<List<string>> GetCategoriesByUserIdAsync(int userId)
+        {
+            return await _context.FlashCards
+                .Where(fc => fc.UserId == userId)
+                .Select(fc => fc.Category)
+                .Distinct()
+                .ToListAsync();
+        }
     }
 }

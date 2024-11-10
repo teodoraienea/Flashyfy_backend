@@ -2,6 +2,7 @@
 using Flashify_b.Models;
 using Flashify_b.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,10 +13,12 @@ namespace Flashify_b.Controllers
     public class FlashCardController : ControllerBase
     {
         private readonly FlashCardService _flashCardService;
+        private readonly FlashCardAnswerService _answerService;
 
-        public FlashCardController(FlashCardService flashCardService)
+        public FlashCardController(FlashCardService flashCardService, FlashCardAnswerService flashCardAnswerService)
         {
             _flashCardService = flashCardService;
+            _answerService = flashCardAnswerService;
         }
 
         [HttpPost]
@@ -51,5 +54,41 @@ namespace Flashify_b.Controllers
 
             return Ok(flashCards);
         }
+
+
+        [HttpPost("validateAnswer/{flashCardId}")]
+        public async Task<IActionResult> ValidateAnswer(int flashCardId, [FromBody] string userAnswer)
+        {
+            if (string.IsNullOrEmpty(userAnswer))
+            {
+                return BadRequest("User answer is required.");
+            }
+
+            var flashCard = await _flashCardService.GetFlashCardByIdAsync(flashCardId);
+
+            if (flashCard == null)
+            {
+                return NotFound("Flashcard not found.");
+            }
+
+            bool isCorrect = await _answerService.ValidateAnswerAsync(userAnswer, flashCard.Answer);
+
+            return Ok(new { isCorrect });
+        }
+
+        [HttpGet("categories/{userId}")]
+        public async Task<IActionResult> GetCategoriesByUserId(int userId)
+        {
+            var categories = await _flashCardService.GetCategoriesByUserIdAsync(userId);
+
+            if (categories == null || categories.Count == 0)
+            {
+                return NotFound("No categories found for this user.");
+            }
+
+            return Ok(categories);
+        }
+
+
     }
 }
